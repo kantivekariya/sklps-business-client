@@ -1,0 +1,41 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.3.14/schema.json",
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": ["**", "!**/node_modules", "!**/.next", "!**/dist", "!**/build", "!**/coverage", "!**/*.min.js", "!next-env.d.ts"]
+  },
+  "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 100 },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "a11y": { "useButtonType": "warn" },
+      "complexity": { "noExtraBooleanCast": "error", "noUselessCatch": "error" },
+      "correctness": { "noUnusedVariables": "warn" },
+      "performance": { "noImgElement": "off" },
+      "security": { "noDangerouslySetInnerHtml": "off" },
+      "style": { "useConst": "warn", "noNonNullAssertion": "warn" },
+      "suspicious": {
+        "noExplicitAny": "off",
+        "noDebugger": "warn",
+        "noVar": "warn",
+        "noShadowRestrictedNames": "off"
+      }
+    }
+  },
+  "css": {
+    "parser": { "cssModules": false, "tailwindDirectives": true },
+    "linter": { "enabled": false }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "jsxQuoteStyle": "double",
+      "trailingCommas": "es5",
+      "semicolons": "always",
+      "arrowParentheses": "always"
+    }
+  },
+  "json": { "formatter": { "enabled": true } }
+}
