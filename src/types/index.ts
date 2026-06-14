@@ -1,3 +1,10 @@
+export interface Admin {
+  _id: string;
+  email: string;
+  name: string;
+  role: string;
+}
+
 export interface Business {
   _id: string;
   businessName: string;
@@ -40,6 +47,27 @@ export interface Job {
   status?: string;
   businessId?: string | { _id: string; businessName: string; name: string; email?: string };
   createdAt?: string;
+}
+
+export interface HomeStats {
+  totalMembers: number;
+  totalBusinesses: number;
+  totalCategories: number;
+}
+
+export interface PagedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  sortOrder: number;
 }
 
 export interface User {
