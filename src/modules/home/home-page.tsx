@@ -121,10 +121,10 @@ export default function HomePage() {
                 className="flex flex-col items-center text-center"
               >
                 <div
-                  className="flex h-16 w-16 items-center justify-center rounded-2xl mb-5 shadow-sm"
-                  style={{ backgroundColor: `${s.color}15` }}
+                  className="flex h-14 w-14 items-center justify-center rounded-2xl mb-5 border"
+                  style={{ backgroundColor: `${s.color}12`, borderColor: `${s.color}30` }}
                 >
-                  <s.icon className="h-7 w-7" style={{ color: s.color }} />
+                  <s.icon className="h-6 w-6" style={{ color: s.color }} />
                 </div>
                 <span
                   className="text-xs font-bold tracking-widest uppercase mb-2"
@@ -162,7 +162,7 @@ export default function HomePage() {
               <Link to="/add-business">
                 <Button
                   size="lg"
-                  className="rounded-full font-semibold px-8 bg-white text-primary hover:bg-white/90 shadow-xl"
+                  className="rounded-full font-semibold px-8 bg-white text-primary hover:bg-white/90"
                 >
                   <PlusCircle className="mr-2 h-5 w-5" />
                   Add Your Business

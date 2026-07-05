@@ -41,19 +41,25 @@ export default function BusinessLoginPage() {
 
   if (authLoading || business) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex h-screen items-center justify-center bg-background">
         <div className="h-12 w-12 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       {/* Left branding panel */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-primary text-white p-12">
-        <div className="flex items-center gap-3">
-          <img src="/images/home/SKLPS%20LOGO-04.svg" alt="SKLPS" className="h-10 w-auto" />
-          <span className="text-xl font-bold tracking-tight">SKLPS Business</span>
+      <div
+        className="hidden lg:flex lg:w-1/2 flex-col justify-between text-white p-12"
+        style={{ background: "linear-gradient(150deg, #FF385C 0%, #FC642D 100%)" }}
+      >
+        <div className="flex flex-col items-start gap-3">
+          <img src="/images/home/SKLPS%20LOGO-04.svg" alt="SKLPS" className="h-20 w-auto drop-shadow-md" />
+          <div>
+            <p className="text-xl font-extrabold tracking-tight leading-tight">Business Portal</p>
+            <p className="text-[11px] text-white/65 tracking-[0.18em] uppercase mt-0.5">SKLPS Community</p>
+          </div>
         </div>
         <div>
           <h1 className="text-4xl font-extrabold leading-tight mb-4">

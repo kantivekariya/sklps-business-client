@@ -1,4 +1,4 @@
-import { Eye, EyeOff, Loader2, Shield } from "lucide-react";
+import { Briefcase, Building2, CheckCircle2, Eye, EyeOff, Loader2, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -41,31 +41,57 @@ export default function AdminLoginPage() {
 
   if (authLoading || admin) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex h-screen items-center justify-center bg-background">
         <div className="h-12 w-12 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen">
-      {/* Left branding panel */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-neutral-950 text-white p-12">
-        <div className="flex items-center gap-3">
-          <img src="/images/home/SKLPS%20LOGO-04.svg" alt="SKLPS" className="h-10 w-auto" />
-          <span className="text-xl font-bold tracking-tight">SKLPS Admin</span>
+    <div className="flex h-screen overflow-hidden">
+      {/* Left branding panel — coral/red brand gradient */}
+      <div
+        className="hidden lg:flex lg:w-1/2 flex-col justify-between text-white p-12"
+        style={{ background: "linear-gradient(150deg, #FF385C 0%, #FC642D 100%)" }}
+      >
+        {/* Top: logo + panel name */}
+        <div className="flex flex-col items-start gap-3">
+          <img src="/images/home/SKLPS%20LOGO-04.svg" alt="SKLPS" className="h-20 w-auto drop-shadow-md" />
+          <div>
+            <p className="text-xl font-extrabold tracking-tight leading-tight">Admin Panel</p>
+            <p className="text-[11px] text-white/65 tracking-[0.18em] uppercase mt-0.5">SKLPS Community</p>
+          </div>
         </div>
+
+        {/* Middle: headline + feature list */}
         <div>
           <h1 className="text-4xl font-extrabold leading-tight mb-4">
             Manage your community
             <br />
             business directory.
           </h1>
-          <p className="text-neutral-400 text-lg leading-relaxed max-w-sm">
-            Approve businesses, manage job listings, and keep your community directory up to date.
+          <p className="text-white/80 text-lg leading-relaxed max-w-sm mb-8">
+            Everything you need to keep the SKLPS community directory running smoothly.
           </p>
+          <ul className="space-y-4">
+            {[
+              { icon: Building2, text: "Approve & manage business listings" },
+              { icon: Briefcase, text: "Oversee job postings across all businesses" },
+              { icon: Users, text: "Monitor community members & activity" },
+              { icon: CheckCircle2, text: "Keep directory accurate and up to date" },
+            ].map(({ icon: Icon, text }) => (
+              <li key={text} className="flex items-center gap-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/15">
+                  <Icon className="h-4 w-4 text-white" />
+                </div>
+                <span className="text-white/90 text-sm font-medium">{text}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-        <p className="text-neutral-600 text-sm">
+
+        {/* Bottom: copyright */}
+        <p className="text-white/50 text-sm">
           © {new Date().getFullYear()} SKLPS Business Directory
         </p>
       </div>

@@ -16,33 +16,44 @@ export function Navbar() {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <nav className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
+    <nav className="bg-white border-b border-border sticky top-0 z-50">
+      {/* Primary colour accent strip at top */}
+      <div className="h-[3px] w-full" style={{ background: "linear-gradient(90deg, #FF385C 0%, #FC642D 100%)" }} />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center justify-between" style={{ minHeight: 88 }}>
+
+          {/* ── Logo — full SVG, no clip, large enough to read detail ── */}
+          <Link to="/" className="flex items-center gap-3 shrink-0 py-2">
             <img
               src="/images/home/SKLPS%20LOGO-04.svg"
-              alt="SKLPS"
-              className="h-11 w-auto"
+              alt="SKLPS logo"
+              style={{ height: 80, width: "auto" }}
               onError={(e) => {
                 e.currentTarget.style.display = "none";
               }}
             />
-            <span className="text-lg font-extrabold text-foreground tracking-tight">SKLPS</span>
+            <div className="flex flex-col leading-none">
+              <span className="text-[19px] font-extrabold tracking-tight" style={{ color: "#1a1a2e" }}>
+                SKLPS
+              </span>
+              <span className="text-[10px] font-semibold tracking-[0.18em] uppercase mt-1" style={{ color: "#FF385C" }}>
+                Community Directory
+              </span>
+            </div>
           </Link>
 
-          {/* Desktop nav links — center */}
+          {/* ── Desktop nav links — center ── */}
           <div className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 to={link.path}
                 className={clsx(
-                  "px-4 py-2 rounded-full text-sm font-medium transition-all",
+                  "px-4 py-2.5 rounded-full text-[13.5px] font-medium transition-all",
                   isActive(link.path)
-                    ? "text-primary font-semibold"
-                    : "text-foreground/70 hover:text-foreground hover:bg-muted"
+                    ? "text-primary bg-primary/8 font-semibold"
+                    : "text-foreground/60 hover:text-foreground hover:bg-muted"
                 )}
               >
                 {link.name}
@@ -50,36 +61,43 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* Desktop actions */}
-          <div className="hidden md:flex items-center gap-2">
+          {/* ── Desktop action buttons ── */}
+          <div className="hidden md:flex items-center gap-2.5">
             <Link to="/business-login">
-              <Button variant="ghost" size="sm" className="rounded-full font-medium text-sm">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="rounded-full font-medium text-[13px] h-9 px-4 text-foreground/65 hover:text-foreground"
+              >
                 Business Login
               </Button>
             </Link>
             <Link to="/add-business">
-              <Button size="sm" className="rounded-full font-semibold px-5">
-                <PlusCircle className="mr-1.5 h-4 w-4" />
+              <Button
+                size="sm"
+                className="rounded-full font-semibold text-[13px] px-5 h-9 gap-1.5"
+              >
+                <PlusCircle className="h-3.5 w-3.5" />
                 Add Business
               </Button>
             </Link>
           </div>
 
-          {/* Mobile toggle */}
-          <div className="md:hidden flex items-center">
+          {/* ── Mobile toggle ── */}
+          <div className="md:hidden">
             <button
               type="button"
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-full text-foreground/70 hover:text-foreground hover:bg-muted transition-colors"
+              className="p-2 rounded-full text-foreground/60 hover:text-foreground hover:bg-muted transition-colors"
               aria-label="Toggle menu"
             >
-              {isOpen ? <X size={22} /> : <Menu size={22} />}
+              {isOpen ? <X size={21} /> : <Menu size={21} />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* ── Mobile menu ── */}
       {isOpen && (
         <div className="md:hidden border-t bg-white px-4 py-3 space-y-1">
           {navLinks.map((link) => (
@@ -91,7 +109,7 @@ export function Navbar() {
                 "block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors",
                 isActive(link.path)
                   ? "bg-primary/10 text-primary"
-                  : "text-foreground/70 hover:bg-muted hover:text-foreground"
+                  : "text-foreground/65 hover:bg-muted hover:text-foreground"
               )}
             >
               {link.name}

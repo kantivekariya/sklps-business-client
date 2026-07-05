@@ -121,7 +121,7 @@ export function CategoryFilter() {
                   className="group flex flex-col items-center gap-2 min-w-[72px] snap-start"
                 >
                   <div
-                    className="flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-200 group-hover:scale-110 group-hover:shadow-md"
+                    className="flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-200 group-hover:scale-105"
                     style={{ backgroundColor: `${cat.color}18` }}
                   >
                     <Icon className="h-6 w-6" style={{ color: cat.color }} />

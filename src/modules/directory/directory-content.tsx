@@ -1,15 +1,33 @@
-import { Briefcase, ChevronLeft, ChevronRight, MapPin, Search, X } from "lucide-react";
+import { LayoutGrid, Loader2, Search, SlidersHorizontal, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { BusinessCard } from "@/modules/business/business-card";
 import type { Business } from "@/types";
 import { directoryService } from "./directory.service";
 
-interface Pagination {
-  total: number;
-  page: number;
-  totalPages: number;
+const PAGE_SIZE = 6;
+
+function SkeletonCard() {
+  return (
+    <div className="bg-white rounded-2xl border border-border/60 overflow-hidden animate-pulse">
+      <div className="bg-muted" style={{ aspectRatio: "16/9" }} />
+      <div className="p-4 space-y-3">
+        <div className="h-4 bg-muted rounded w-3/4" />
+        <div className="h-3 bg-muted rounded w-1/2" />
+        <div className="h-3 bg-muted rounded w-full" />
+        <div className="h-3 bg-muted rounded w-5/6" />
+        <div className="h-8 bg-muted rounded mt-4" />
+      </div>
+    </div>
+  );
 }
 
 export function DirectoryContent() {
@@ -18,228 +36,254 @@ export function DirectoryContent() {
 
   const categoryFromUrl = searchParams.get("category") ?? "";
   const cityFromUrl = searchParams.get("city") ?? "";
-  const pageFromUrl = searchParams.get("page") ?? "1";
   const searchFromUrl = searchParams.get("search") ?? "";
 
   const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const [debouncedSearch, setDebouncedSearch] = useState(searchFromUrl);
   const [categoryFilter, setCategoryFilter] = useState(categoryFromUrl);
   const [cityFilter, setCityFilter] = useState(cityFromUrl);
-  const [currentPage, setCurrentPage] = useState(Math.max(1, parseInt(pageFromUrl, 10) || 1));
   const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({ total: 0, page: 1, totalPages: 0 });
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [filterOptions, setFilterOptions] = useState<{ categories: string[]; cities: string[] }>({
     categories: [],
     cities: [],
   });
 
-  const updateUrl = (page: number, cat: string, city: string, searchVal: string) => {
-    const params = new URLSearchParams();
-    if (page > 1) params.set("page", String(page));
-    if (cat) params.set("category", cat);
-    if (city) params.set("city", city);
-    if (searchVal.trim()) params.set("search", searchVal.trim());
-    const qs = params.toString();
-    navigate(qs ? `/directory?${qs}` : "/directory");
-  };
+  const buildFilters = useCallback(() => ({
+    ...(categoryFilter && { category: categoryFilter }),
+    ...(cityFilter && { city: cityFilter }),
+    ...(debouncedSearch.trim() && { search: debouncedSearch.trim() }),
+  }), [categoryFilter, cityFilter, debouncedSearch]);
 
-  const fetchBusinesses = useCallback(async () => {
+  // Initial / filter-change fetch — resets list
+  const fetchInitial = useCallback(async () => {
     setLoading(true);
+    setPage(1);
     try {
-      const data = await directoryService.getBusinesses(currentPage, 12, {
-        ...(categoryFilter && { category: categoryFilter }),
-        ...(cityFilter && { city: cityFilter }),
-        ...(debouncedSearch.trim() && { search: debouncedSearch.trim() }),
-      });
+      const data = await directoryService.getBusinesses(1, PAGE_SIZE, buildFilters());
       setBusinesses(data.data);
-      setPagination({ total: data.total, page: data.page, totalPages: data.totalPages });
+      setTotal(data.total);
     } catch {
       setBusinesses([]);
-      setPagination({ total: 0, page: 1, totalPages: 0 });
+      setTotal(0);
     } finally {
       setLoading(false);
     }
-  }, [currentPage, categoryFilter, cityFilter, debouncedSearch]);
+  }, [buildFilters]);
 
-  useEffect(() => {
-    fetchBusinesses();
-  }, [fetchBusinesses]);
+  useEffect(() => { fetchInitial(); }, [fetchInitial]);
 
-  // Debounce: sync debouncedSearch 400ms after the user stops typing
+  // Debounce search input
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 400);
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => setDebouncedSearch(searchTerm), 420);
+    return () => clearTimeout(t);
   }, [searchTerm]);
 
+  // Sync URL params on first load
   useEffect(() => {
     setSearchTerm(searchFromUrl);
     setDebouncedSearch(searchFromUrl);
     setCategoryFilter(categoryFromUrl);
     setCityFilter(cityFromUrl);
-    setCurrentPage(Math.max(1, parseInt(pageFromUrl, 10) || 1));
-  }, [categoryFromUrl, cityFromUrl, pageFromUrl, searchFromUrl]);
+  }, [categoryFromUrl, cityFromUrl, searchFromUrl]);
 
   useEffect(() => {
-    directoryService
-      .getMetaFilters()
-      .then(setFilterOptions)
-      .catch(() => {});
+    directoryService.getMetaFilters().then(setFilterOptions).catch(() => {});
   }, []);
 
-  const handleSearch = () => {
-    setCurrentPage(1);
-    updateUrl(1, categoryFilter, cityFilter, searchTerm);
+  const updateUrl = (category: string, city: string, search: string) => {
+    const params = new URLSearchParams();
+    if (category) params.set("category", category);
+    if (city) params.set("city", city);
+    if (search.trim()) params.set("search", search.trim());
+    navigate(params.toString() ? `/directory?${params}` : "/directory");
   };
 
   const handleCategoryChange = (value: string) => {
     setCategoryFilter(value);
-    setCurrentPage(1);
-    updateUrl(1, value, cityFilter, searchTerm);
+    updateUrl(value, cityFilter, searchTerm);
   };
 
   const handleCityChange = (value: string) => {
     setCityFilter(value);
-    setCurrentPage(1);
-    updateUrl(1, categoryFilter, value, searchTerm);
+    updateUrl(categoryFilter, value, searchTerm);
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    updateUrl(page, categoryFilter, cityFilter, searchTerm);
+  const handleLoadMore = async () => {
+    const nextPage = page + 1;
+    setLoadingMore(true);
+    try {
+      const data = await directoryService.getBusinesses(nextPage, PAGE_SIZE, buildFilters());
+      setBusinesses((prev) => [...prev, ...data.data]);
+      setPage(nextPage);
+    } catch {
+      // swallow
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
-  const categories = [
-    ...new Set([...filterOptions.categories, categoryFilter].filter(Boolean)),
-  ].sort();
+  const clearAll = () => {
+    setSearchTerm("");
+    setCategoryFilter("");
+    setCityFilter("");
+    navigate("/directory");
+  };
+
+  const categories = [...new Set([...filterOptions.categories, categoryFilter].filter(Boolean))].sort();
   const cities = [...new Set([...filterOptions.cities, cityFilter].filter(Boolean))].sort();
+  const hasActiveFilters = !!(searchTerm || categoryFilter || cityFilter);
+  const hasMore = businesses.length < total;
 
   return (
     <>
-      <div className="sticky top-20 z-10 mb-10 rounded-xl border bg-card p-6 shadow-md transition-shadow hover:shadow-lg">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-          <div className="relative md:col-span-6">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <Search className="text-muted-foreground" size={20} />
+      {/* ── Filter bar ── */}
+      <div className="rounded-2xl border bg-white shadow-lg mb-8 overflow-hidden">
+        <div className="p-4 sm:p-5">
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Search */}
+            <div className="relative flex-1 min-w-0">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search businesses, categories, or keywords…"
+                className="w-full rounded-xl border border-input bg-muted/30 py-2.5 pl-10 pr-9 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && updateUrl(categoryFilter, cityFilter, searchTerm)}
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => { setSearchTerm(""); updateUrl(categoryFilter, cityFilter, ""); }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
             </div>
-            <input
-              type="text"
-              placeholder="Search by name, category, or keyword..."
-              className="w-full rounded-lg border border-input bg-background py-3 pl-10 pr-4 transition-colors focus:border-ring focus:ring-2 focus:ring-ring"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            />
-            {searchTerm && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchTerm("");
-                  setCurrentPage(1);
-                }}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
-              >
-                <X size={16} />
-              </button>
-            )}
-          </div>
 
-          <div className="relative md:col-span-3">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <Briefcase className="text-muted-foreground" size={18} />
+            {/* Category */}
+            <div className="sm:w-48">
+              <Select value={categoryFilter || "__all__"} onValueChange={(v) => handleCategoryChange(v === "__all__" ? "" : v)}>
+                <SelectTrigger className="rounded-xl bg-muted/30 border-input h-[42px] text-sm">
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__all__">All Categories</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <select
-              className="w-full cursor-pointer appearance-none rounded-lg border border-input bg-background py-3 pl-10 pr-4 transition-colors focus:border-ring focus:ring-2 focus:ring-ring"
-              value={categoryFilter}
-              onChange={(e) => handleCategoryChange(e.target.value)}
-            >
-              <option value="">All Categories</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-          </div>
 
-          <div className="relative md:col-span-3">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <MapPin className="text-muted-foreground" size={18} />
+            {/* City */}
+            <div className="sm:w-40">
+              <Select value={cityFilter || "__all__"} onValueChange={(v) => handleCityChange(v === "__all__" ? "" : v)}>
+                <SelectTrigger className="rounded-xl bg-muted/30 border-input h-[42px] text-sm">
+                  <SelectValue placeholder="All Cities" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__all__">All Cities</SelectItem>
+                  {cities.map((city) => (
+                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <select
-              className="w-full cursor-pointer appearance-none rounded-lg border border-input bg-background py-3 pl-10 pr-4 transition-colors focus:border-ring focus:ring-2 focus:ring-ring"
-              value={cityFilter}
-              onChange={(e) => handleCityChange(e.target.value)}
-            >
-              <option value="">All Cities</option>
-              {cities.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
           </div>
         </div>
-        <div className="mt-4 flex justify-end">
-          <Button onClick={handleSearch}>Search</Button>
+
+        {/* Active filters + result count bar */}
+        <div className="flex items-center justify-between px-5 py-2.5 bg-muted/30 border-t border-border/40">
+          <div className="flex items-center gap-2 flex-wrap">
+            <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+            {!loading && (
+              <span className="text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">{total}</span> business{total !== 1 ? "es" : ""} found
+              </span>
+            )}
+            {categoryFilter && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary text-[11px] font-medium px-2.5 py-0.5">
+                {categoryFilter}
+                <button type="button" onClick={() => handleCategoryChange("")} className="hover:text-primary/70">
+                  <X className="h-2.5 w-2.5" />
+                </button>
+              </span>
+            )}
+            {cityFilter && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary text-[11px] font-medium px-2.5 py-0.5">
+                {cityFilter}
+                <button type="button" onClick={() => handleCityChange("")} className="hover:text-primary/70">
+                  <X className="h-2.5 w-2.5" />
+                </button>
+              </span>
+            )}
+          </div>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearAll}
+              className="text-[11px] text-muted-foreground hover:text-foreground font-medium transition-colors"
+            >
+              Clear all
+            </button>
+          )}
         </div>
       </div>
 
+      {/* ── Grid ── */}
       {loading ? (
-        <div className="flex justify-center py-20">
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: skeleton
+            <SkeletonCard key={i} />
+          ))}
         </div>
       ) : businesses.length > 0 ? (
         <>
-          <div className="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {businesses.map((business) => (
-              <BusinessCard key={business._id} business={business} />
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {businesses.map((business, i) => (
+              <BusinessCard key={business._id} business={business} index={i} />
             ))}
           </div>
 
-          {pagination.totalPages > 1 && (
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage <= 1}
-                >
-                  <ChevronLeft size={20} />
-                </Button>
-                <span className="min-w-[120px] text-center text-sm text-muted-foreground">
-                  Page {pagination.page} of {pagination.totalPages}
-                  <span className="ml-1">({pagination.total} total)</span>
-                </span>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage >= pagination.totalPages}
-                >
-                  <ChevronRight size={20} />
-                </Button>
-              </div>
+          {/* ── Load more ── */}
+          {hasMore && (
+            <div className="mt-10 flex flex-col items-center gap-2">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className="rounded-full px-10 font-semibold"
+              >
+                {loadingMore ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading…</>
+                ) : (
+                  `Load More Businesses (${total - businesses.length} remaining)`
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Showing {businesses.length} of {total} businesses
+              </p>
             </div>
           )}
         </>
       ) : (
-        <div className="rounded-xl border border-dashed bg-card py-20 text-center shadow-sm">
-          <p className="text-lg text-muted-foreground">
-            No businesses found matching your criteria.
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed bg-white py-24 text-center">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+            <LayoutGrid className="h-7 w-7 text-muted-foreground" />
+          </div>
+          <p className="text-base font-semibold text-foreground mb-1">No businesses found</p>
+          <p className="text-sm text-muted-foreground mb-6 max-w-xs">
+            Try adjusting your search or filters to find what you're looking for.
           </p>
-          <Button
-            variant="link"
-            className="mt-4"
-            onClick={() => {
-              setSearchTerm("");
-              setCategoryFilter("");
-              setCityFilter("");
-              setCurrentPage(1);
-              navigate("/directory");
-            }}
-          >
+          <Button variant="outline" onClick={clearAll} className="rounded-full px-6">
             Clear all filters
           </Button>
         </div>

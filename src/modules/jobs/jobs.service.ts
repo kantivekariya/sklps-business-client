@@ -22,11 +22,17 @@ export interface JobApplication {
   coverLetter?: string;
 }
 
+export interface JobListFilters {
+  search?: string;
+  category?: string;
+  country?: string;
+}
+
 export const jobsService = {
-  getApproved: () =>
+  list: (page: number, limit: number, filters: JobListFilters = {}) =>
     api
-      .get<Job[]>(`${API_ENDPOINTS.JOB_LIST}?status=Approved`)
-      .then((r) => (Array.isArray(r.data) ? r.data : [])),
+      .post<PagedResponse<Job>>(API_ENDPOINTS.JOB_LIST_POST, { page, limit, filters })
+      .then((r) => r.data),
 
   getById: (id: string) => api.get<Job>(API_ENDPOINTS.JOB_BY_ID(id)).then((r) => r.data),
 

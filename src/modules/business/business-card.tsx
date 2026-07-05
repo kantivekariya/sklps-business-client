@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MapPin, MessageCircle, Phone } from "lucide-react";
+import { ArrowRight, Clock, MapPin, MessageCircle, Phone } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { Business } from "@/types";
@@ -32,10 +32,11 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 interface BusinessCardProps {
   business: Business;
+  index?: number;
 }
 
-export function BusinessCard({ business }: BusinessCardProps) {
-  const { _id, businessName, name, category, city, description, logoUrl, mobile, whatsapp } =
+export function BusinessCard({ business, index = 0 }: BusinessCardProps) {
+  const { _id, businessName, name, category, city, description, logoUrl, mobile, whatsapp, yearsInBusiness } =
     business;
   const [imgError, setImgError] = useState(false);
   const color = CATEGORY_COLORS[category] ?? "#FF385C";
@@ -43,90 +44,118 @@ export function BusinessCard({ business }: BusinessCardProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
+      transition={{ duration: 0.4, delay: (index % 6) * 0.06 }}
       viewport={{ once: true }}
+      className="group flex flex-col bg-white rounded-2xl border border-border/60 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
     >
-      <Link to={`/directory/${_id}`} className="group block">
-        {/* Image area — Airbnb style: no card border, rounded image */}
-        <div className="relative aspect-square w-full overflow-hidden rounded-2xl mb-3">
-          {showPlaceholder ? (
-            <div
-              className="h-full w-full flex items-center justify-center"
-              style={{ background: `linear-gradient(135deg, ${color}22, ${color}44)` }}
-            >
-              <span
-                className="text-6xl font-black uppercase select-none"
-                style={{ color: `${color}55` }}
-              >
-                {businessName?.charAt(0) ?? "B"}
-              </span>
-            </div>
-          ) : (
-            <img
-              src={logoUrl}
-              alt={businessName}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              onError={() => setImgError(true)}
-            />
-          )}
-
-          {/* Hover overlay */}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 rounded-2xl" />
-
-          {/* Category badge */}
-          <div className="absolute top-3 left-3">
+      {/* ── Cover image ── */}
+      <Link to={`/directory/${_id}`} className="block relative overflow-hidden shrink-0" style={{ aspectRatio: "16/9" }}>
+        {showPlaceholder ? (
+          <div
+            className="h-full w-full flex flex-col items-center justify-center gap-2"
+            style={{ background: `linear-gradient(135deg, ${color}18 0%, ${color}35 100%)` }}
+          >
             <span
-              className="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold text-white shadow-sm"
-              style={{ backgroundColor: color }}
+              className="text-5xl font-black uppercase select-none"
+              style={{ color: `${color}70` }}
             >
-              {category}
+              {businessName?.charAt(0) ?? "B"}
             </span>
           </div>
+        ) : (
+          <img
+            src={logoUrl}
+            alt={businessName}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={() => setImgError(true)}
+          />
+        )}
 
-          {/* Action buttons overlay */}
-          <div className="absolute bottom-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            {whatsapp && (
-              <a
-                href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`}
-                target="_blank"
-                rel="noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                title="WhatsApp"
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md text-emerald-600 hover:bg-emerald-50 transition-colors"
-              >
-                <MessageCircle className="h-4 w-4" />
-              </a>
+        {/* Bottom gradient for readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+
+        {/* Category badge */}
+        <span
+          className="absolute top-3 left-3 inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold text-white shadow-sm"
+          style={{ backgroundColor: color }}
+        >
+          {category}
+        </span>
+
+        {/* Years in business */}
+        {yearsInBusiness && (
+          <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-black/50 backdrop-blur-sm px-2 py-0.5 text-[10px] text-white/90">
+            <Clock className="h-2.5 w-2.5" />
+            {yearsInBusiness}y
+          </span>
+        )}
+      </Link>
+
+      {/* ── Content ── */}
+      <div className="flex flex-col flex-1 p-4">
+        <Link to={`/directory/${_id}`} className="block mb-3">
+          <h3 className="font-bold text-[15px] text-foreground leading-snug line-clamp-1 group-hover:text-primary transition-colors">
+            {businessName}
+          </h3>
+          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+            <MapPin className="h-3 w-3 shrink-0" style={{ color }} />
+            <span className="truncate">{city || "Location N/A"}</span>
+            {name && (
+              <>
+                <span className="mx-1 text-border">·</span>
+                <span className="truncate">{name}</span>
+              </>
             )}
+          </div>
+        </Link>
+
+        <p className="text-[12.5px] text-muted-foreground line-clamp-2 leading-relaxed flex-1 mb-4">
+          {description || "No description available."}
+        </p>
+
+        {/* ── Action buttons ── */}
+        <div className="flex items-center gap-2 pt-3 border-t border-border/50">
+          {whatsapp ? (
+            <a
+              href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[11px] font-semibold transition-colors bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+              WhatsApp
+            </a>
+          ) : (
             <a
               href={`tel:${mobile}`}
               onClick={(e) => e.stopPropagation()}
-              title="Call"
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md text-blue-600 hover:bg-blue-50 transition-colors"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[11px] font-semibold transition-colors bg-blue-50 text-blue-700 hover:bg-blue-100"
             >
-              <Phone className="h-4 w-4" />
+              <Phone className="h-3.5 w-3.5" />
+              Call
             </a>
-          </div>
+          )}
+          {whatsapp && (
+            <a
+              href={`tel:${mobile}`}
+              onClick={(e) => e.stopPropagation()}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[11px] font-semibold transition-colors bg-blue-50 text-blue-700 hover:bg-blue-100"
+            >
+              <Phone className="h-3.5 w-3.5" />
+              Call
+            </a>
+          )}
+          <Link
+            to={`/directory/${_id}`}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/70 text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
+          >
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
-
-        {/* Text content — clean Airbnb style */}
-        <div className="space-y-0.5 px-0.5">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="font-semibold text-sm text-foreground leading-snug line-clamp-1 group-hover:text-primary transition-colors">
-              {businessName}
-            </h3>
-          </div>
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <MapPin className="h-3 w-3 shrink-0" />
-            <span className="truncate">{city || "Location N/A"}</span>
-          </div>
-          <p className="text-xs text-muted-foreground line-clamp-1">{name}</p>
-          <p className="text-xs text-muted-foreground line-clamp-2 pt-0.5 leading-relaxed">
-            {description || "No description available."}
-          </p>
-        </div>
-      </Link>
+      </div>
     </motion.div>
   );
 }

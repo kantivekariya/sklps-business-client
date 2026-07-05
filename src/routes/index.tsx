@@ -37,11 +37,11 @@ export const router = createBrowserRouter([
       { path: "directory", element: wrap(<DirectoryPage />) },
       { path: "directory/:id", element: wrap(<BusinessDetailPage />) },
       { path: "add-business", element: wrap(<AddBusinessPage />) },
-      { path: "business-login", element: wrap(<BusinessLoginPage />) },
       { path: "jobs", element: wrap(<JobsPage />) },
       { path: "jobs/:id", element: wrap(<JobDetailPage />) },
     ],
   },
+  { path: "/business-login", element: wrap(<BusinessLoginPage />) },
   {
     path: "/admin",
     element: <AdminLayout />,
