@@ -2,6 +2,7 @@ import { Briefcase, Building2, CheckCircle2, Eye, EyeOff, Loader2, Users } from 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,7 +57,7 @@ export default function AdminLoginPage() {
       >
         {/* Top: logo + panel name */}
         <div className="flex flex-col items-start gap-3">
-          <img src="/images/home/SKLPS%20LOGO-04.svg" alt="SKLPS" className="h-20 w-auto drop-shadow-md" />
+          <Logo variant="dark" iconSize={64} showTagline={false} linkTo={false} />
           <div>
             <p className="text-xl font-extrabold tracking-tight leading-tight">Admin Panel</p>
             <p className="text-[11px] text-white/65 tracking-[0.18em] uppercase mt-0.5">SKLPS Community</p>
@@ -100,9 +101,8 @@ export default function AdminLoginPage() {
       <div className="flex flex-1 flex-col items-center justify-center bg-background px-6 py-12">
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
-          <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <img src="/images/home/SKLPS%20LOGO-04.svg" alt="SKLPS" className="h-9 w-auto" />
-            <span className="text-lg font-bold">SKLPS Admin</span>
+          <div className="mb-8 lg:hidden">
+            <Logo iconSize={36} showTagline={false} linkTo={false} />
           </div>
 
           <h2 className="text-2xl font-bold text-foreground mb-1">Welcome back</h2>

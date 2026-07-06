@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Logo } from "@/components/logo";
 
 const LINKS = {
   Explore: [
@@ -20,9 +21,8 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
           {/* Brand */}
           <div className="md:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <img src="/images/home/SKLPS%20LOGO-04.svg" alt="SKLPS" className="h-10 w-auto" />
-              <span className="text-white text-lg font-bold">SKLPS Directory</span>
+            <div className="mb-4">
+              <Logo variant="dark" iconSize={40} linkTo={false} />
             </div>
             <p className="text-sm text-neutral-400 leading-relaxed max-w-xs">
               Connecting the SKLPS community through business. Discover, network, and grow together

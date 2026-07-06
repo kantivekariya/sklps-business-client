@@ -11,6 +11,9 @@ export interface Business {
   name: string;
   category: string;
   city: string;
+  country?: string;
+  state?: string;
+  postalCode?: string;
   description: string;
   logoUrl?: string;
   mobile: string;
@@ -18,6 +21,9 @@ export interface Business {
   email: string;
   address: string;
   website?: string;
+  businessType?: string;
+  employeeCount?: string;
+  socialMediaUrl?: string;
   yearsInBusiness?: number;
   nativePlace?: string;
   registrationNumber?: string;

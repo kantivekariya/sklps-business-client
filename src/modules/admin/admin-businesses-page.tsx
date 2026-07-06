@@ -353,6 +353,18 @@ export default function AdminBusinessesPage() {
                   {selectedBusiness.email}
                 </div>
                 <div>
+                  <span className="font-semibold block text-muted-foreground mb-1">Location</span>
+                  {[selectedBusiness.city, selectedBusiness.state, selectedBusiness.country]
+                    .filter(Boolean)
+                    .join(", ") || "N/A"}
+                </div>
+                <div>
+                  <span className="font-semibold block text-muted-foreground mb-1">
+                    Business Type
+                  </span>
+                  {selectedBusiness.businessType || "N/A"}
+                </div>
+                <div>
                   <span className="font-semibold block text-muted-foreground mb-1">
                     Native Place
                   </span>
@@ -360,7 +372,7 @@ export default function AdminBusinessesPage() {
                 </div>
                 <div>
                   <span className="font-semibold block text-muted-foreground mb-1">
-                    Registration No.
+                    Tax ID / Registration No.
                   </span>
                   {selectedBusiness.registrationNumber || "N/A"}
                 </div>

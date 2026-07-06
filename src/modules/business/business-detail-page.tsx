@@ -215,10 +215,19 @@ export default function BusinessDetailPage() {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <InfoRow icon={MapPin} label="Address" value={business.address} />
+                <InfoRow
+                  icon={MapPin}
+                  label="Location"
+                  value={[business.city, business.state, business.country].filter(Boolean).join(", ") || null}
+                />
+                <InfoRow icon={MapPin} label="Postal Code" value={business.postalCode} />
                 <InfoRow icon={Globe} label="Website" value={business.website} />
+                <InfoRow icon={Globe} label="Social Media" value={business.socialMediaUrl} />
+                <InfoRow icon={Building2} label="Business Type" value={business.businessType} />
+                <InfoRow icon={User} label="Employees" value={business.employeeCount} />
                 <InfoRow icon={MapPin} label="Native Place" value={business.nativePlace} />
                 <InfoRow icon={Calendar} label="Years in Business" value={business.yearsInBusiness ? `${business.yearsInBusiness} years` : null} />
-                <InfoRow icon={BadgeCheck} label="Registration No." value={business.registrationNumber} />
+                <InfoRow icon={BadgeCheck} label="Tax ID / Registration No." value={business.registrationNumber} />
                 <InfoRow icon={User} label="Reference" value={business.referenceName} />
               </div>
               {business.website && (

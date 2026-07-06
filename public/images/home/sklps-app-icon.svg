@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="114" fill="#D81E44"></rect>
+  <g transform="translate(256,256) scale(1.28) translate(-120,-120)">
+    <g fill="none" stroke="#ffffff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="84,60 120,96 156,60"></polyline>
+      <polyline points="180,84 144,120 180,156"></polyline>
+      <polyline points="156,180 120,144 84,180"></polyline>
+      <polyline points="60,156 96,120 60,84"></polyline>
+    </g>
+    <g fill="#ffffff">
+      <path d="M120 26 L134 40 L120 54 L106 40 Z"></path>
+      <path d="M200 106 L214 120 L200 134 L186 120 Z"></path>
+      <path d="M120 186 L134 200 L120 214 L106 200 Z"></path>
+      <path d="M40 106 L54 120 L40 134 L26 120 Z"></path>
+      <path d="M120 104 L136 120 L120 136 L104 120 Z"></path>
+    </g>
+  </g>
+</svg>

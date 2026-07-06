@@ -21,8 +21,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { BUSINESS_TYPES, COUNTRIES, EMPLOYEE_COUNT_RANGES, flagEmoji } from "@/constants";
 import { useToast } from "@/hooks/use-toast";
 import { businessService } from "./business.service";
+
+const DIAL_CODES = COUNTRIES.filter((c) => c.dialCode);
 
 const categories = [
   "Agriculture",
@@ -77,16 +80,38 @@ export function AddBusinessForm() {
     }
   };
 
-  const onSubmit = async (data: Record<string, unknown>) => {
+  const onSubmit = async (data: Record<string, string>) => {
     setIsSubmitting(true);
     try {
       const formData = new FormData();
-      Object.keys(data).forEach((key) => {
-        if (key === "yearsInBusiness") {
-          formData.append(key, String(Number(data[key])));
-        } else if (data[key] !== undefined && data[key] !== null) {
-          formData.append(key, data[key] as string);
-        }
+      const mobile = `+${data.mobileDialCode}${data.mobileNumber}`;
+      const whatsapp = data.whatsappNumber ? `+${data.whatsappDialCode}${data.whatsappNumber}` : "";
+
+      const fields: Record<string, string | undefined> = {
+        name: data.name,
+        email: data.email,
+        mobile,
+        whatsapp,
+        city: data.city,
+        country: data.country,
+        state: data.state,
+        postalCode: data.postalCode,
+        registrationNumber: data.registrationNumber,
+        nativePlace: data.nativePlace,
+        referenceName: data.referenceName,
+        referenceContact: data.referenceContact,
+        businessName: data.businessName,
+        category: data.category,
+        businessType: data.businessType,
+        employeeCount: data.employeeCount,
+        yearsInBusiness: data.yearsInBusiness ? String(Number(data.yearsInBusiness)) : undefined,
+        website: data.website,
+        socialMediaUrl: data.socialMediaUrl,
+        description: data.description,
+        address: data.address,
+      };
+      Object.entries(fields).forEach(([key, value]) => {
+        if (value) formData.append(key, value);
       });
       if (selectedFile) formData.append("logo", selectedFile);
       await businessService.create(formData);
@@ -165,24 +190,71 @@ export function AddBusinessForm() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="mobile">Mobile Number *</Label>
-                    <Input
-                      id="mobile"
-                      {...register("mobile", {
-                        required: "Mobile number is required",
-                        pattern: { value: /^[0-9]{10}$/, message: "Invalid mobile number" },
-                      })}
-                      placeholder="10-digit mobile number"
-                    />
-                    {errors.mobile && (
+                    <Label htmlFor="mobileNumber">Mobile Number *</Label>
+                    <div className="flex gap-2">
+                      <Select defaultValue="91" onValueChange={(v) => setValue("mobileDialCode", v)}>
+                        <SelectTrigger className="w-14 shrink-0 px-2 sm:w-[110px] sm:px-3">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-64">
+                          {DIAL_CODES.map((c) => (
+                            <SelectItem key={c.name} value={c.dialCode}>
+                              <span className="sm:hidden">{flagEmoji(c.iso2)}</span>
+                              <span className="hidden sm:inline">
+                                +{c.dialCode} {c.name}
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <input type="hidden" defaultValue="91" {...register("mobileDialCode")} />
+                      <Input
+                        id="mobileNumber"
+                        {...register("mobileNumber", {
+                          required: "Mobile number is required",
+                          pattern: { value: /^[0-9]{6,15}$/, message: "Invalid mobile number" },
+                        })}
+                        placeholder="Mobile number"
+                      />
+                    </div>
+                    {errors.mobileNumber && (
                       <p className="text-xs text-destructive">
-                        {(errors.mobile as { message?: string }).message}
+                        {(errors.mobileNumber as { message?: string }).message}
                       </p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="whatsapp">WhatsApp Number</Label>
-                    <Input id="whatsapp" {...register("whatsapp")} placeholder="Optional" />
+                    <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
+                    <div className="flex gap-2">
+                      <Select defaultValue="91" onValueChange={(v) => setValue("whatsappDialCode", v)}>
+                        <SelectTrigger className="w-14 shrink-0 px-2 sm:w-[110px] sm:px-3">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-64">
+                          {DIAL_CODES.map((c) => (
+                            <SelectItem key={c.name} value={c.dialCode}>
+                              <span className="sm:hidden">{flagEmoji(c.iso2)}</span>
+                              <span className="hidden sm:inline">
+                                +{c.dialCode} {c.name}
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <input type="hidden" defaultValue="91" {...register("whatsappDialCode")} />
+                      <Input
+                        id="whatsappNumber"
+                        {...register("whatsappNumber", {
+                          pattern: { value: /^[0-9]{6,15}$/, message: "Invalid WhatsApp number" },
+                        })}
+                        placeholder="Optional"
+                      />
+                    </div>
+                    {errors.whatsappNumber && (
+                      <p className="text-xs text-destructive">
+                        {(errors.whatsappNumber as { message?: string }).message}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="email">Email Address *</Label>
@@ -214,6 +286,35 @@ export function AddBusinessForm() {
                       </p>
                     )}
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="country">Country *</Label>
+                    <Select onValueChange={(value) => setValue("country", value, { shouldValidate: true })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Country" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-64">
+                        {COUNTRIES.map((c) => (
+                          <SelectItem key={c.name} value={c.name}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <input type="hidden" {...register("country", { required: "Country is required" })} />
+                    {errors.country && (
+                      <p className="text-xs text-destructive">
+                        {(errors.country as { message?: string }).message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="state">State / Province</Label>
+                    <Input id="state" {...register("state")} placeholder="State or province" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="postalCode">Postal / ZIP Code</Label>
+                    <Input id="postalCode" {...register("postalCode")} placeholder="Postal code" />
+                  </div>
                 </div>
               </div>
 
@@ -223,11 +324,11 @@ export function AddBusinessForm() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="registrationNumber">Business Registration Number</Label>
+                    <Label htmlFor="registrationNumber">Tax ID / Business Registration No.</Label>
                     <Input
                       id="registrationNumber"
                       {...register("registrationNumber")}
-                      placeholder="GST/PAN or Registration No."
+                      placeholder="e.g. VAT, GST, EIN, Company Reg. No."
                     />
                   </div>
                   <div className="space-y-2">
@@ -319,6 +420,47 @@ export function AddBusinessForm() {
                       type="url"
                       {...register("website")}
                       placeholder="https://example.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="businessType">Business Type</Label>
+                    <Select onValueChange={(value) => setValue("businessType", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Business Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {BUSINESS_TYPES.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <input type="hidden" {...register("businessType")} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="employeeCount">Number of Employees</Label>
+                    <Select onValueChange={(value) => setValue("employeeCount", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {EMPLOYEE_COUNT_RANGES.map((range) => (
+                          <SelectItem key={range} value={range}>
+                            {range}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <input type="hidden" {...register("employeeCount")} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="socialMediaUrl">Social Media Link</Label>
+                    <Input
+                      id="socialMediaUrl"
+                      type="url"
+                      {...register("socialMediaUrl")}
+                      placeholder="Instagram, Facebook, or LinkedIn URL"
                     />
                   </div>
                   <div className="space-y-2">

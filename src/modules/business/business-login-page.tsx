@@ -1,7 +1,8 @@
-import { Building2, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,7 +56,7 @@ export default function BusinessLoginPage() {
         style={{ background: "linear-gradient(150deg, #FF385C 0%, #FC642D 100%)" }}
       >
         <div className="flex flex-col items-start gap-3">
-          <img src="/images/home/SKLPS%20LOGO-04.svg" alt="SKLPS" className="h-20 w-auto drop-shadow-md" />
+          <Logo variant="dark" iconSize={64} showTagline={false} linkTo={false} />
           <div>
             <p className="text-xl font-extrabold tracking-tight leading-tight">Business Portal</p>
             <p className="text-[11px] text-white/65 tracking-[0.18em] uppercase mt-0.5">SKLPS Community</p>
@@ -81,9 +82,8 @@ export default function BusinessLoginPage() {
       <div className="flex flex-1 flex-col items-center justify-center bg-background px-6 py-12">
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
-          <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <Building2 className="h-7 w-7 text-primary" />
-            <span className="text-lg font-bold">SKLPS Business</span>
+          <div className="mb-8 lg:hidden">
+            <Logo iconSize={36} showTagline={false} linkTo={false} />
           </div>
 
           <h2 className="text-2xl font-bold text-foreground mb-1">Business Login</h2>

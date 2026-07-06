@@ -2,6 +2,7 @@ import { Briefcase, Building2, ChevronRight, LayoutDashboard, LogOut, Menu } fro
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { PageSpinner } from "@/common/spinner";
+import { Logo } from "@/components/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,11 +56,13 @@ export default function AdminLayout() {
           className="flex-shrink-0 flex flex-col items-center justify-center px-4 py-5 gap-2"
           style={{ background: "#0a0c10" }}
         >
-          <img
-            src="/images/home/SKLPS%20LOGO-04.svg"
-            alt="SKLPS"
-            style={{ height: isSidebarOpen ? 72 : 36, width: "auto" }}
-            className="shrink-0 transition-all duration-300"
+          <Logo
+            variant="dark"
+            layout="column"
+            iconSize={isSidebarOpen ? 72 : 36}
+            showTagline={false}
+            linkTo={false}
+            className="transition-all duration-300"
           />
           {isSidebarOpen && (
             <div className="text-center mt-0.5">
